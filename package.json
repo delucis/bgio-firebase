@@ -1,0 +1,72 @@
+{
+  "name": "bgio-firebase",
+  "version": "0.0.1",
+  "description": "🔌 A Firebase database connector for boardgame.io",
+  "license": "MIT",
+  "author": "Chris Swithinbank <swithinbank@gmail.com> (http://chrisswithinbank.net/)",
+  "homepage": "https://github.com/delucis/bgio-firebase#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/delucis/bgio-firebase.git"
+  },
+  "bugs": {
+    "url": "https://github.com/delucis/bgio-firebase/issues"
+  },
+  "keywords": [
+    "boardgame.io",
+    "firebase",
+    "firestore",
+    "rtdb"
+  ],
+  "main": "dist/bgio-firebase.js",
+  "types": "dist/bgio-firebase.d.ts",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "pretest": "eslint \"./**/*.{ts,js}\"",
+    "test": "jest --coverage",
+    "coverage": "cat ./coverage/lcov.info | coveralls",
+    "prettier:check": "prettier --list-different \"src/**/*.ts\"",
+    "prettier:write": "prettier --write \"src/**/*.ts\"",
+    "clean": "rm -R dist",
+    "prebuild": "npm run prettier:check && npm run clean",
+    "build": "tsc",
+    "prerelease": "npm run test && npm run build",
+    "release": "standard-version -s"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run prettier:write",
+      "pre-push": "npm run prettier:check && npm run test"
+    }
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.4",
+    "@typescript-eslint/eslint-plugin": "^2.24.0",
+    "@typescript-eslint/parser": "^2.24.0",
+    "commitizen": "^4.0.3",
+    "cz-conventional-changelog": "^3.1.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-jest": "^23.8.2",
+    "eslint-plugin-prettier": "^3.1.2",
+    "firebase-mock": "^2.3.2",
+    "husky": "^4.2.3",
+    "jest": "^25.1.0",
+    "prettier": "^1.19.1",
+    "standard-version": "^7.1.0",
+    "ts-jest": "^25.2.1",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "@types/lru-cache": "^5.1.0",
+    "firebase-admin": "^8.10.0",
+    "lru-cache": "^5.1.1"
+  }
+}

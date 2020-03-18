@@ -1,0 +1,7 @@
+node_modules
+# ignore test coverage results
+/coverage
+# ignore compiler output
+/dist
+# ignore config files in root directory
+/*.js

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "esModuleInterop": true,
+    "lib": ["es6"],
+    "module": "commonjs",
+    "outDir": "dist",
+    "strict": true,
+    "target": "es6"
+  },
+  "exclude": ["**/*.test.js"],
+  "include": ["src", "types"]
+}
