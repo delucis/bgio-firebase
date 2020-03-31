@@ -15,8 +15,7 @@
   "keywords": [
     "boardgame.io",
     "firebase",
-    "firestore",
-    "rtdb"
+    "firestore"
   ],
   "main": "dist/bgio-firebase.js",
   "types": "dist/bgio-firebase.d.ts",
@@ -24,14 +23,14 @@
     "dist/*"
   ],
   "scripts": {
-    "pretest": "eslint \"./**/*.{ts,js}\"",
-    "test": "jest --coverage",
+    "pretest": "eslint \"{src,test}/**/*.{ts,js}\"",
+    "test": "firebase emulators:exec --only firestore \"jest --coverage\"",
     "coverage": "cat ./coverage/lcov.info | coveralls",
-    "prettier:check": "prettier --list-different \"src/**/*.ts\"",
-    "prettier:write": "prettier --write \"src/**/*.ts\"",
-    "clean": "rm -R dist",
+    "prettier:check": "prettier --list-different \"{src,test}/**/*.ts\"",
+    "prettier:write": "prettier --write \"{src,test}/**/*.ts\"",
+    "clean": "rimraf dist .tscache",
     "prebuild": "npm run prettier:check && npm run clean",
-    "build": "tsc",
+    "build": "tsc -b src",
     "prerelease": "npm run test && npm run build",
     "release": "standard-version -s"
   },
@@ -50,23 +49,26 @@
     "@types/jest": "^25.1.4",
     "@typescript-eslint/eslint-plugin": "^2.24.0",
     "@typescript-eslint/parser": "^2.24.0",
+    "boardgame.io": ">=0.39.4",
     "commitizen": "^4.0.3",
+    "coveralls": "^3.0.11",
     "cz-conventional-changelog": "^3.1.0",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-jest": "^23.8.2",
     "eslint-plugin-prettier": "^3.1.2",
-    "firebase-mock": "^2.3.2",
     "husky": "^4.2.3",
     "jest": "^25.1.0",
     "prettier": "^1.19.1",
+    "rimraf": "^3.0.2",
     "standard-version": "^7.1.0",
     "ts-jest": "^25.2.1",
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@types/lru-cache": "^5.1.0",
-    "firebase-admin": "^8.10.0",
-    "lru-cache": "^5.1.1"
+    "firebase-admin": "^8.10.0"
+  },
+  "peerDependencies": {
+    "boardgame.io": ">=0.39.4"
   }
 }
