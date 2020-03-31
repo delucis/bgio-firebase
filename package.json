@@ -24,7 +24,8 @@
   ],
   "scripts": {
     "pretest": "eslint \"{src,test}/**/*.{ts,js}\"",
-    "test": "firebase emulators:exec --only firestore \"jest --coverage\"",
+    "jest": "jest --coverage",
+    "test": "firebase emulators:exec --only firestore 'npm run jest'",
     "coverage": "cat ./coverage/lcov.info | coveralls",
     "prettier:check": "prettier --list-different \"{src,test}/**/*.ts\"",
     "prettier:write": "prettier --write \"{src,test}/**/*.ts\"",
