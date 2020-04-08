@@ -11,7 +11,6 @@ import { Server, State } from 'boardgame.io';
 import { tables } from '../src/db/shared';
 import { Firestore } from '../src/bgio-firebase';
 
-
 describe('Firestore', () => {
   let db: Firestore;
 
