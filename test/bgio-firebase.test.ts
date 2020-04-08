@@ -6,6 +6,7 @@
  * https://opensource.org/licenses/MIT.
  */
 
+import firebase from '@firebase/testing';
 import { Server, State } from 'boardgame.io';
 import { tables } from '../src/db/shared';
 import { Firestore } from '../src/bgio-firebase';
@@ -32,6 +33,11 @@ describe('Firestore', () => {
   afterEach(async () => {
     const ids = await db.listGames();
     await Promise.all(ids.map(id => db.wipe(id)));
+  });
+
+  afterAll(async () => {
+    // close connections to emulator after testing
+    await Promise.all(firebase.apps().map(app => app.delete()));
   });
 
   test('must return undefined when no game exists', async () => {
