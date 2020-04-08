@@ -24,12 +24,12 @@ describe('Firestore', () => {
   // clean database after each test
   afterEach(async () => {
     const ids = await db.listGames();
-    await Promise.all(ids.map(id => db.wipe(id)));
+    await Promise.all(ids.map((id) => db.wipe(id)));
   });
 
   afterAll(async () => {
     // close connections to emulator after testing
-    await Promise.all(firebase.apps().map(app => app.delete()));
+    await Promise.all(firebase.apps().map((app) => app.delete()));
   });
 
   test('construction', () => {

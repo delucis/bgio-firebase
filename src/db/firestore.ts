@@ -16,7 +16,7 @@ export class Firestore extends Async {
     this.client = admin;
     if (
       !this.client.apps?.length ||
-      (app && !this.client.apps.some(a => a?.name === app))
+      (app && !this.client.apps.some((a) => a?.name === app))
     ) {
       this.client.initializeApp(config, app);
     }
@@ -35,7 +35,7 @@ export class Firestore extends Async {
     gameID: string,
     opts: StorageAPI.CreateGameOpts
   ): Promise<void> {
-    return this.db.runTransaction(async transaction => {
+    return this.db.runTransaction(async (transaction) => {
       transaction
         .set(this.metadata.doc(gameID), opts.metadata)
         .set(this.state.doc(gameID), opts.initialState)
@@ -49,7 +49,7 @@ export class Firestore extends Async {
     state: State,
     deltalog?: LogEntry[]
   ): Promise<void> {
-    return this.db.runTransaction(async transaction => {
+    return this.db.runTransaction(async (transaction) => {
       const stateRef = this.state.doc(gameID);
       // read previous state from the database
       const prevSnapshot = await transaction.get(stateRef);
@@ -93,7 +93,7 @@ export class Firestore extends Async {
 
     // fetch required data from database and return result
     const snapshots = await this.db.getAll(...toFetch);
-    snapshots.forEach(snap => {
+    snapshots.forEach((snap) => {
       const table = snap.ref.parent.id;
       if (isTable(table)) {
         const data = snap.data() as State & {
@@ -111,7 +111,7 @@ export class Firestore extends Async {
   }
 
   async wipe(gameID: string): Promise<void> {
-    await this.db.runTransaction(async transaction => {
+    await this.db.runTransaction(async (transaction) => {
       transaction
         .delete(this.metadata.doc(gameID))
         .delete(this.state.doc(gameID))
@@ -127,7 +127,7 @@ export class Firestore extends Async {
         : this.metadata;
     const docs = await ref.get();
     const ids: string[] = [];
-    docs.forEach(doc => ids.push(doc.id));
+    docs.forEach((doc) => ids.push(doc.id));
     return ids;
   }
 }
