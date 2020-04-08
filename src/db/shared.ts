@@ -23,7 +23,3 @@ export const tables = [
 ] as const;
 
 export type Tables = typeof tables[number];
-
-export function isTable(table: unknown): table is Tables {
-  return tables.includes(table as Tables);
-}

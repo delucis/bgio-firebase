@@ -1,7 +1,7 @@
 import admin from 'firebase-admin';
 import { Async } from 'boardgame.io/internal';
 import { LogEntry, Server, State, StorageAPI } from 'boardgame.io';
-import { DB_PREFIX, tables, isTable, DBTable, FirebaseDBOpts } from './shared';
+import { DB_PREFIX, tables, DBTable, FirebaseDBOpts } from './shared';
 
 export class Firestore extends Async {
   client: typeof admin;
@@ -80,34 +80,36 @@ export class Firestore extends Async {
     gameID: string,
     opts: O
   ): Promise<StorageAPI.FetchResult<O>> {
-    const result = {} as StorageAPI.FetchFields;
+    return this.db.runTransaction(async (transaction) => {
+      const result = {} as StorageAPI.FetchFields;
+      const requests: Promise<void>[] = [];
 
-    // get references for each document to fetch
-    const toFetch: admin.firestore.DocumentReference[] = [];
-    for (const key of tables) {
-      if (opts[key]) toFetch.push(this[key].doc(gameID));
-    }
-
-    // bail if there’s nothing to fetch
-    if (toFetch.length === 0) return result;
-
-    // fetch required data from database and return result
-    const snapshots = await this.db.getAll(...toFetch);
-    snapshots.forEach((snap) => {
-      const table = snap.ref.parent.id;
-      if (isTable(table)) {
-        const data = snap.data() as State & {
-          log: LogEntry[];
-        } & Server.GameMetadata;
-        if (table === DBTable.Log) {
-          // handle log storage format to return array
-          result[table] = data.log;
-        } else {
-          result[table] = data;
-        }
+      // Check if each fetch field is included in the options object
+      // and if so, launch a get request for its data.
+      for (const table of tables) {
+        if (!opts[table]) continue;
+        // Launch get request for this document type
+        const fetch = transaction
+          .get(this[table].doc(gameID))
+          .then((snapshot) => {
+            // Read returned data
+            const data = snapshot.data() as State & {
+              log: LogEntry[];
+            } & Server.GameMetadata;
+            // Add data to the results map
+            if (table === DBTable.Log) {
+              // Handle log storage format to return array
+              result[table] = data ? data.log : data;
+            } else {
+              result[table] = data;
+            }
+          });
+        requests.push(fetch);
       }
+
+      await Promise.all(requests);
+      return result;
     });
-    return result;
   }
 
   async wipe(gameID: string): Promise<void> {
