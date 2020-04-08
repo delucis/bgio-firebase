@@ -11,14 +11,6 @@ import { Server, State } from 'boardgame.io';
 import { tables } from '../src/db/shared';
 import { Firestore } from '../src/bgio-firebase';
 
-test('construction', () => {
-  const dbPrefix = 'a';
-  const db = new Firestore({ dbPrefix });
-  for (const table of tables) {
-    const ref = db[table];
-    expect(ref.id).toBe(dbPrefix + table);
-  }
-});
 
 describe('Firestore', () => {
   let db: Firestore;
@@ -38,6 +30,15 @@ describe('Firestore', () => {
   afterAll(async () => {
     // close connections to emulator after testing
     await Promise.all(firebase.apps().map(app => app.delete()));
+  });
+
+  test('construction', () => {
+    const dbPrefix = 'a';
+    db = new Firestore({ dbPrefix });
+    for (const table of tables) {
+      const ref = db[table];
+      expect(ref.id).toBe(dbPrefix + table);
+    }
   });
 
   test('must return undefined when no game exists', async () => {
