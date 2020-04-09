@@ -61,7 +61,7 @@ export class Firestore extends Async {
 
         // concatenate log if deltalog is provided
         if (deltalog && deltalog.length > 0) {
-          transaction.set(this.log.doc(gameID), {
+          transaction.update(this.log.doc(gameID), {
             log: this.client.firestore.FieldValue.arrayUnion(...deltalog),
           });
         }
