@@ -28,7 +28,7 @@ export class Firestore extends Async {
   }
 
   async connect(): Promise<void> {
-    // TODO: connect to db
+    // No-op, but required by boardgame.io
   }
 
   async createGame(
