@@ -4,12 +4,12 @@ import { LogEntry, Server, State, StorageAPI } from 'boardgame.io';
 import { DB_PREFIX, tables, DBTable, FirebaseDBOpts } from './shared';
 
 export class Firestore extends Async {
-  client: typeof admin;
-  db: admin.firestore.Firestore;
-  metadata: admin.firestore.CollectionReference;
-  state: admin.firestore.CollectionReference;
-  initialState: admin.firestore.CollectionReference;
-  log: admin.firestore.CollectionReference;
+  readonly client: typeof admin;
+  readonly db: admin.firestore.Firestore;
+  readonly metadata: admin.firestore.CollectionReference;
+  readonly state: admin.firestore.CollectionReference;
+  readonly initialState: admin.firestore.CollectionReference;
+  readonly log: admin.firestore.CollectionReference;
 
   constructor({ app, config, dbPrefix = DB_PREFIX }: FirebaseDBOpts = {}) {
     super();
