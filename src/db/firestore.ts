@@ -35,13 +35,13 @@ export class Firestore extends Async {
     gameID: string,
     opts: StorageAPI.CreateGameOpts
   ): Promise<void> {
-    return this.db.runTransaction(async (transaction) => {
-      transaction
-        .set(this.metadata.doc(gameID), opts.metadata)
-        .set(this.state.doc(gameID), opts.initialState)
-        .set(this.initialState.doc(gameID), opts.initialState)
-        .set(this.log.doc(gameID), { log: [] });
-    });
+    await this.db
+      .batch()
+      .create(this.metadata.doc(gameID), opts.metadata)
+      .create(this.state.doc(gameID), opts.initialState)
+      .create(this.initialState.doc(gameID), opts.initialState)
+      .create(this.log.doc(gameID), { log: [] })
+      .commit();
   }
 
   async setState(
@@ -113,13 +113,13 @@ export class Firestore extends Async {
   }
 
   async wipe(gameID: string): Promise<void> {
-    await this.db.runTransaction(async (transaction) => {
-      transaction
-        .delete(this.metadata.doc(gameID))
-        .delete(this.state.doc(gameID))
-        .delete(this.initialState.doc(gameID))
-        .delete(this.log.doc(gameID));
-    });
+    await this.db
+      .batch()
+      .delete(this.metadata.doc(gameID))
+      .delete(this.state.doc(gameID))
+      .delete(this.initialState.doc(gameID))
+      .delete(this.log.doc(gameID))
+      .commit();
   }
 
   async listGames(opts?: StorageAPI.ListGamesOpts): Promise<string[]> {
