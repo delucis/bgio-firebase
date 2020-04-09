@@ -48,11 +48,11 @@
   },
   "devDependencies": {
     "@firebase/testing": "^0.18.2",
-    "@types/jest": "^25.1.4",
+    "@types/jest": "^25.2.1",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
     "boardgame.io": ">=0.39.4",
-    "commitizen": "^4.0.3",
+    "commitizen": "^4.0.4",
     "coveralls": "^3.0.11",
     "cz-conventional-changelog": "^3.1.0",
     "eslint": "^6.8.0",
@@ -60,11 +60,11 @@
     "eslint-plugin-jest": "^23.8.2",
     "eslint-plugin-prettier": "^3.1.2",
     "husky": "^4.2.3",
-    "jest": "^25.1.0",
+    "jest": "^25.3.0",
     "prettier": "^2.0.4",
     "rimraf": "^3.0.2",
     "standard-version": "^7.1.0",
-    "ts-jest": "^25.2.1",
+    "ts-jest": "^25.3.1",
     "typescript": "^3.8.3"
   },
   "dependencies": {
