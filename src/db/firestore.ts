@@ -14,10 +14,10 @@ export class Firestore extends Async {
   constructor({ app, config, dbPrefix = DB_PREFIX }: FirebaseDBOpts = {}) {
     super();
     this.client = admin;
-    if (
-      !this.client.apps?.length ||
-      (app && !this.client.apps.some((a) => a?.name === app))
-    ) {
+    const hasNoInitializedApp = this.client.apps.length === 0;
+    const isNamedAppUninitialized =
+      app && !this.client.apps.some((a) => a && a.name === app);
+    if (hasNoInitializedApp || isNamedAppUninitialized) {
       this.client.initializeApp(config, app);
     }
     this.db = this.client.app(app).firestore();
