@@ -67,6 +67,16 @@ An options object to pass to the Firebase Admin SDK's `initializeApp` method. Th
 
 Prefix for the boardgame.io collections within your Firebase project.
 
+### `ignoreUndefinedProperties`
+
+- **type:** `boolean`
+- **default:** `true`
+
+By default, the Firestore instance’s [`settings` method][settings] is called
+internally to avoid errors from `undefined` values in data from boardgame.io.
+`settings` can only be called once, so if you want to call it with your own
+custom options, you can pass `false` here to disable the internal call.
+
 
 ## Database structure
 
@@ -132,6 +142,7 @@ The code in this repository is provided under [the MIT License][license].
 [0.39cl]: https://github.com/nicolodavis/boardgame.io/blob/master/docs/documentation/CHANGELOG.md#v0390
 [fbsetup]: https://firebase.google.com/docs/admin/setup#node.js
 [appopts]: https://firebase.google.com/docs/reference/admin/node/admin.AppOptions
+[settings]: https://googleapis.dev/nodejs/firestore/latest/Firestore.html#settings
 [dbstruct]: #database-structure
 [newissue]: https://github.com/delucis/bgio-firebase/issues/new/choose
 [COC]: CODE_OF_CONDUCT.md
