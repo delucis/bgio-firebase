@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/delucis/bgio-firebase/compare/v0.1.0...v0.1.1) (2020-06-04)
+
+
+### Features
+
+* Set `ignoreUndefinedProperties` in Firestore settings by default ([#22](https://github.com/delucis/bgio-firebase/issues/22)) ([e6fe1e3](https://github.com/delucis/bgio-firebase/commit/e6fe1e33d6beac5a00457b1bdb71ea67da5a7440))
+
 ## 0.1.0 (2020-04-09)
 
 
