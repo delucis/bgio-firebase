@@ -11,7 +11,12 @@ export class Firestore extends Async {
   readonly initialState: admin.firestore.CollectionReference;
   readonly log: admin.firestore.CollectionReference;
 
-  constructor({ app, config, dbPrefix = DB_PREFIX }: FirebaseDBOpts = {}) {
+  constructor({
+    app,
+    config,
+    dbPrefix = DB_PREFIX,
+    ignoreUndefinedProperties = true,
+  }: FirebaseDBOpts = {}) {
     super();
     this.client = admin;
     const hasNoInitializedApp = this.client.apps.length === 0;
@@ -21,6 +26,9 @@ export class Firestore extends Async {
       this.client.initializeApp(config, app);
     }
     this.db = this.client.app(app).firestore();
+    if (ignoreUndefinedProperties) {
+      this.db.settings({ ignoreUndefinedProperties });
+    }
     this.metadata = this.db.collection(dbPrefix + DBTable.Metadata);
     this.state = this.db.collection(dbPrefix + DBTable.State);
     this.initialState = this.db.collection(dbPrefix + DBTable.InitialState);

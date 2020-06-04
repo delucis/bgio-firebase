@@ -20,6 +20,7 @@ describe('Firestore', () => {
     // instantiate new database instance for each test
     db = new Firestore({
       config: { projectId },
+      ignoreUndefinedProperties: false,
     });
     await db.connect();
   });
@@ -46,7 +47,7 @@ describe('Firestore', () => {
 
     test('custom database prefix', () => {
       const dbPrefix = 'a';
-      db = new Firestore({ dbPrefix });
+      db = new Firestore({ dbPrefix, ignoreUndefinedProperties: false });
       for (const table of tables) {
         const ref = db[table];
         expect(ref.id).toBe(dbPrefix + table);
@@ -54,7 +55,11 @@ describe('Firestore', () => {
     });
 
     test('can specify app name', () => {
-      db = new Firestore({ config: { projectId }, app: 'customApp' });
+      db = new Firestore({
+        config: { projectId },
+        app: 'customApp',
+        ignoreUndefinedProperties: false,
+      });
       expect(
         db.client.apps.some((app) => app && app.name === 'customApp')
       ).toBe(true);
