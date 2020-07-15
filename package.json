@@ -69,7 +69,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "firebase-admin": "^8.10.0"
+    "firebase-admin": "^9.0.0"
   },
   "peerDependencies": {
     "boardgame.io": ">=0.39.4"
