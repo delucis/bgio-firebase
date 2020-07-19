@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [0.1.2](https://github.com/delucis/bgio-firebase/compare/v0.1.1...v0.1.2) (2020-07-19)
 
+* Update dependencies
+
 ### [0.1.1](https://github.com/delucis/bgio-firebase/compare/v0.1.0...v0.1.1) (2020-06-04)
 
 
