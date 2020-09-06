@@ -77,10 +77,7 @@ export class Firestore extends Async {
     });
   }
 
-  async setMetadata(
-    gameID: string,
-    metadata: Server.GameMetadata
-  ): Promise<void> {
+  async setMetadata(gameID: string, metadata: Server.MatchData): Promise<void> {
     await this.metadata.doc(gameID).set(metadata);
   }
 
@@ -103,7 +100,7 @@ export class Firestore extends Async {
             // Read returned data
             const data = snapshot.data() as State & {
               log: LogEntry[];
-            } & Server.GameMetadata;
+            } & Server.MatchData;
             // Add data to the results map
             if (table === DBTable.Log) {
               // Handle log storage format to return array
