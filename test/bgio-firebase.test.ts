@@ -83,7 +83,7 @@ describe('Firestore', () => {
     test('returns all fields', async () => {
       // Create game.
       const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
-      const metadata = { gameName: 'A' } as Server.GameMetadata;
+      const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createGame('gameID', { initialState, metadata });
 
       // Must return created game.
@@ -102,7 +102,7 @@ describe('Firestore', () => {
     test('returns no fields', async () => {
       // Create game.
       const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
-      const metadata = { gameName: 'A' } as Server.GameMetadata;
+      const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createGame('gameID', { initialState, metadata });
 
       // Must return no fields.
@@ -129,7 +129,7 @@ describe('Firestore', () => {
       // Create game.
       const id = 'B';
       const initialState = ({ G: 'G', _stateID: 0 } as unknown) as State;
-      const metadata = { gameName: 'A' } as Server.GameMetadata;
+      const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createGame(id, { initialState, metadata });
 
       const initialData = await db.fetch(id, { state: true });
@@ -158,7 +158,7 @@ describe('Firestore', () => {
       // Create game.
       const id = 'D';
       const initialState = ({ G: 'G', _stateID: 0 } as unknown) as State;
-      const metadata = { gameName: 'A' } as Server.GameMetadata;
+      const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createGame(id, { initialState, metadata });
 
       // Update state, including deltalogs.
@@ -181,13 +181,13 @@ describe('Firestore', () => {
       // Insert 3 entries
       await db.setMetadata('gameID_0', {
         gameName: 'A',
-      } as Server.GameMetadata);
+      } as Server.MatchData);
       await db.setMetadata('gameID_2', {
         gameName: 'A',
-      } as Server.GameMetadata);
+      } as Server.MatchData);
       await db.setMetadata('gameID_1', {
         gameName: 'B',
-      } as Server.GameMetadata);
+      } as Server.MatchData);
       const ids = await db.listGames();
       expect(ids).toContain('gameID_0');
       expect(ids).toContain('gameID_1');
@@ -197,13 +197,13 @@ describe('Firestore', () => {
     test('list entries for specific gameName', async () => {
       await db.setMetadata('gameID_3', {
         gameName: 'A',
-      } as Server.GameMetadata);
+      } as Server.MatchData);
       await db.setMetadata('gameID_5', {
         gameName: 'A',
-      } as Server.GameMetadata);
+      } as Server.MatchData);
       await db.setMetadata('gameID_4', {
         gameName: 'B',
-      } as Server.GameMetadata);
+      } as Server.MatchData);
       const ids = await db.listGames({ gameName: 'A' });
       expect(ids).toContain('gameID_3');
       expect(ids).toContain('gameID_5');
@@ -214,7 +214,7 @@ describe('Firestore', () => {
   describe('#wipe', () => {
     test('removes entry', async () => {
       const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
-      const metadata = { gameName: 'A' } as Server.GameMetadata;
+      const metadata = { gameName: 'A' } as Server.MatchData;
       // Insert 2 entries
       await db.createGame('gameID_6', { initialState, metadata });
       await db.createGame('gameID_7', { initialState, metadata });
