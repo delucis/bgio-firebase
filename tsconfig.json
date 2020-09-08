@@ -7,6 +7,6 @@
     "module": "CommonJS",
     "outDir": "dist",
     "strict": true,
-    "target": "es6"
+    "target": "es2018"
   }
 }

@@ -22,6 +22,9 @@
   "files": [
     "dist/*"
   ],
+  "engines": {
+    "node": ">=10"
+  },
   "scripts": {
     "pretest": "eslint \"{src,test}/**/*.{ts,js}\"",
     "jest": "jest --coverage",
