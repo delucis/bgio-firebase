@@ -121,6 +121,17 @@ describe('Firestore', () => {
       expect(data).not.toHaveProperty('metadata');
       expect(data).not.toHaveProperty('log');
     });
+
+    test('returns metadata without `isGameover` field', async () => {
+      // Create game.
+      const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
+      const metadata = { gameName: 'A' } as Server.MatchData;
+      await db.createGame('gameID', { initialState, metadata });
+
+      // Metadata should not contain `isGameover` field.
+      const data = await db.fetch('gameID', { metadata: true });
+      expect(data.metadata).not.toHaveProperty('isGameover');
+    });
   });
 
   describe('#setState', () => {
