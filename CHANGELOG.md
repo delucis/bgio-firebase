@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/delucis/bgio-firebase/compare/v0.1.2...v0.2.0) (2020-09-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** The minimum version of the boardgame.io peer dependency is now 0.40.0.
+
+### Features
+
+* Implement match list filtering ([610fc73](https://github.com/delucis/bgio-firebase/commit/610fc731cb3e3c70b5548e91241d41c2387cb837))
+
+
+### Bug Fixes
+
+* Update imported boardgame.io types ([aff6b36](https://github.com/delucis/bgio-firebase/commit/aff6b36eb30852439d2afe0d6cd10922835f15cf))
+
+
+* **deps:** bump boardgame.io from >=0.39.4 to >=0.40.0 ([a11542c](https://github.com/delucis/bgio-firebase/commit/a11542c0b7e151d1d41bed65e5ff153e38154ca2))
+
 ### [0.1.2](https://github.com/delucis/bgio-firebase/compare/v0.1.1...v0.1.2) (2020-07-19)
 
 * Update dependencies
