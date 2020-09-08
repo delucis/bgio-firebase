@@ -64,6 +64,15 @@ describe('Firestore', () => {
         db.client.apps.some((app) => app && app.name === 'customApp')
       ).toBe(true);
     });
+
+    test('can enable composite indexes', () => {
+      db = new Firestore({
+        config: { projectId },
+        ignoreUndefinedProperties: false,
+        useCompositeIndexes: true,
+      });
+      expect(db.useCompositeIndexes).toBe(true);
+    });
   });
 
   describe('#fetch', () => {
@@ -83,7 +92,7 @@ describe('Firestore', () => {
     test('returns all fields', async () => {
       // Create game.
       const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
-      const metadata = { gameName: 'A' } as Server.GameMetadata;
+      const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createGame('gameID', { initialState, metadata });
 
       // Must return created game.
@@ -102,7 +111,7 @@ describe('Firestore', () => {
     test('returns no fields', async () => {
       // Create game.
       const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
-      const metadata = { gameName: 'A' } as Server.GameMetadata;
+      const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createGame('gameID', { initialState, metadata });
 
       // Must return no fields.
@@ -111,6 +120,17 @@ describe('Firestore', () => {
       expect(data).not.toHaveProperty('initialState');
       expect(data).not.toHaveProperty('metadata');
       expect(data).not.toHaveProperty('log');
+    });
+
+    test('returns metadata without `isGameover` field', async () => {
+      // Create game.
+      const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
+      const metadata = { gameName: 'A' } as Server.MatchData;
+      await db.createGame('gameID', { initialState, metadata });
+
+      // Metadata should not contain `isGameover` field.
+      const data = await db.fetch('gameID', { metadata: true });
+      expect(data.metadata).not.toHaveProperty('isGameover');
     });
   });
 
@@ -129,7 +149,7 @@ describe('Firestore', () => {
       // Create game.
       const id = 'B';
       const initialState = ({ G: 'G', _stateID: 0 } as unknown) as State;
-      const metadata = { gameName: 'A' } as Server.GameMetadata;
+      const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createGame(id, { initialState, metadata });
 
       const initialData = await db.fetch(id, { state: true });
@@ -158,7 +178,7 @@ describe('Firestore', () => {
       // Create game.
       const id = 'D';
       const initialState = ({ G: 'G', _stateID: 0 } as unknown) as State;
-      const metadata = { gameName: 'A' } as Server.GameMetadata;
+      const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createGame(id, { initialState, metadata });
 
       // Update state, including deltalogs.
@@ -177,44 +197,199 @@ describe('Firestore', () => {
   });
 
   describe('#listGames', () => {
-    test('list all entries', async () => {
-      // Insert 3 entries
+    beforeEach(async () => {
       await db.setMetadata('gameID_0', {
         gameName: 'A',
-      } as Server.GameMetadata);
-      await db.setMetadata('gameID_2', {
-        gameName: 'A',
-      } as Server.GameMetadata);
+        updatedAt: 1000,
+      } as Server.MatchData);
       await db.setMetadata('gameID_1', {
         gameName: 'B',
-      } as Server.GameMetadata);
+        updatedAt: 1010,
+      } as Server.MatchData);
+      await db.setMetadata('gameID_2', {
+        gameName: 'A',
+        updatedAt: 1020,
+        gameover: true,
+      } as Server.MatchData);
+      await db.setMetadata('gameID_3', {
+        gameName: 'A',
+        updatedAt: 1030,
+        gameover: '0',
+      } as Server.MatchData);
+      await db.setMetadata('gameID_4', {
+        gameName: 'B',
+        updatedAt: 1040,
+        gameover: false,
+      } as Server.MatchData);
+      await db.setMetadata('gameID_5', {
+        gameName: 'A',
+        updatedAt: 1050,
+      } as Server.MatchData);
+    });
+
+    test('lists all entries', async () => {
       const ids = await db.listGames();
       expect(ids).toContain('gameID_0');
       expect(ids).toContain('gameID_1');
       expect(ids).toContain('gameID_2');
+      expect(ids).toContain('gameID_3');
+      expect(ids).toContain('gameID_4');
+      expect(ids).toContain('gameID_5');
     });
 
-    test('list entries for specific gameName', async () => {
-      await db.setMetadata('gameID_3', {
-        gameName: 'A',
-      } as Server.GameMetadata);
-      await db.setMetadata('gameID_5', {
-        gameName: 'A',
-      } as Server.GameMetadata);
-      await db.setMetadata('gameID_4', {
-        gameName: 'B',
-      } as Server.GameMetadata);
+    test('lists entries for specific gameName', async () => {
       const ids = await db.listGames({ gameName: 'A' });
+      expect(ids).toContain('gameID_0');
+      expect(ids).not.toContain('gameID_1');
+      expect(ids).toContain('gameID_2');
       expect(ids).toContain('gameID_3');
-      expect(ids).toContain('gameID_5');
       expect(ids).not.toContain('gameID_4');
+      expect(ids).toContain('gameID_5');
+    });
+
+    test('lists entries where game is over', async () => {
+      const ids = await db.listGames({ where: { isGameover: true } });
+      expect(ids).not.toContain('gameID_0');
+      expect(ids).not.toContain('gameID_1');
+      expect(ids).toContain('gameID_2');
+      expect(ids).toContain('gameID_3');
+      expect(ids).toContain('gameID_4');
+      expect(ids).not.toContain('gameID_5');
+    });
+
+    test('lists entries where game is not over', async () => {
+      const ids = await db.listGames({ where: { isGameover: false } });
+      expect(ids).toContain('gameID_0');
+      expect(ids).toContain('gameID_1');
+      expect(ids).not.toContain('gameID_2');
+      expect(ids).not.toContain('gameID_3');
+      expect(ids).not.toContain('gameID_4');
+      expect(ids).toContain('gameID_5');
+    });
+
+    test('lists entries where game is over for specific gameName', async () => {
+      const ids = await db.listGames({
+        gameName: 'B',
+        where: { isGameover: true },
+      });
+      expect(ids).toEqual(['gameID_4']);
+    });
+
+    test('lists entries updated before a specific time', async () => {
+      const ids = await db.listGames({ where: { updatedBefore: 1025 } });
+      expect(ids).toContain('gameID_0');
+      expect(ids).toContain('gameID_1');
+      expect(ids).toContain('gameID_2');
+      expect(ids).not.toContain('gameID_3');
+      expect(ids).not.toContain('gameID_4');
+      expect(ids).not.toContain('gameID_5');
+    });
+
+    test('lists entries updated after a specific time', async () => {
+      const ids = await db.listGames({ where: { updatedAfter: 1025 } });
+      expect(ids).not.toContain('gameID_0');
+      expect(ids).not.toContain('gameID_1');
+      expect(ids).not.toContain('gameID_2');
+      expect(ids).toContain('gameID_3');
+      expect(ids).toContain('gameID_4');
+      expect(ids).toContain('gameID_5');
+    });
+
+    test('lists entries updated within a time range', async () => {
+      const ids = await db.listGames({
+        where: { updatedAfter: 1025, updatedBefore: 1035 },
+      });
+      expect(ids).not.toContain('gameID_0');
+      expect(ids).not.toContain('gameID_1');
+      expect(ids).not.toContain('gameID_2');
+      expect(ids).toContain('gameID_3');
+      expect(ids).not.toContain('gameID_4');
+      expect(ids).not.toContain('gameID_5');
+    });
+
+    test('lists entries with multiple filter conditions', async () => {
+      let ids = await db.listGames({
+        gameName: 'A',
+        where: { updatedAfter: 1020, isGameover: false },
+      });
+      expect(ids).not.toContain('gameID_0');
+      expect(ids).not.toContain('gameID_1');
+      expect(ids).not.toContain('gameID_2');
+      expect(ids).not.toContain('gameID_3');
+      expect(ids).not.toContain('gameID_4');
+      expect(ids).toContain('gameID_5');
+
+      ids = await db.listGames({
+        gameName: 'A',
+        where: { updatedAfter: 1020, isGameover: true },
+      });
+      expect(ids).not.toContain('gameID_0');
+      expect(ids).not.toContain('gameID_1');
+      expect(ids).not.toContain('gameID_2');
+      expect(ids).toContain('gameID_3');
+      expect(ids).not.toContain('gameID_4');
+      expect(ids).not.toContain('gameID_5');
+    });
+
+    describe('with composite indexes', () => {
+      beforeEach(async () => {
+        // instantiate new database instance for each test
+        db = new Firestore({
+          config: { projectId },
+          ignoreUndefinedProperties: false,
+          useCompositeIndexes: true,
+        });
+        await db.connect();
+
+        // populate database with metadata
+        await db.setMetadata('gameID_0', {
+          gameName: 'A',
+          updatedAt: 1000,
+        } as Server.MatchData);
+        await db.setMetadata('gameID_1', {
+          gameName: 'B',
+          updatedAt: 1010,
+        } as Server.MatchData);
+        await db.setMetadata('gameID_2', {
+          gameName: 'A',
+          updatedAt: 1020,
+          gameover: true,
+        } as Server.MatchData);
+        await db.setMetadata('gameID_3', {
+          gameName: 'A',
+          updatedAt: 1030,
+          gameover: '0',
+        } as Server.MatchData);
+        await db.setMetadata('gameID_4', {
+          gameName: 'B',
+          updatedAt: 1040,
+          gameover: false,
+        } as Server.MatchData);
+        await db.setMetadata('gameID_5', {
+          gameName: 'A',
+          updatedAt: 1050,
+        } as Server.MatchData);
+      });
+
+      test('list entries with multiple filter conditions', async () => {
+        const ids = await db.listGames({
+          gameName: 'A',
+          where: { updatedAfter: 1020, isGameover: false },
+        });
+        expect(ids).not.toContain('gameID_0');
+        expect(ids).not.toContain('gameID_1');
+        expect(ids).not.toContain('gameID_2');
+        expect(ids).not.toContain('gameID_3');
+        expect(ids).not.toContain('gameID_4');
+        expect(ids).toContain('gameID_5');
+      });
     });
   });
 
   describe('#wipe', () => {
     test('removes entry', async () => {
       const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
-      const metadata = { gameName: 'A' } as Server.GameMetadata;
+      const metadata = { gameName: 'A' } as Server.MatchData;
       // Insert 2 entries
       await db.createGame('gameID_6', { initialState, metadata });
       await db.createGame('gameID_7', { initialState, metadata });

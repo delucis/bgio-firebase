@@ -41,8 +41,6 @@ const server = Server({
 server.run(8000);
 ```
 
-> **Note:** Versions 0.38 and below of boardgame.io used a different database API and [provided their own connector][old-connector], which you should use instead if you’re using an older version of the library.
-
 
 ## Options
 
@@ -77,52 +75,22 @@ internally to avoid errors from `undefined` values in data from boardgame.io.
 `settings` can only be called once, so if you want to call it with your own
 custom options, you can pass `false` here to disable the internal call.
 
+### `useCompositeIndexes`
+
+- **type:** `boolean`
+- **default:** `false`
+
+This connector tries to be as efficient as possible with minimal set-up, but due to Firestore’s query limitations, it cannot combine a date range query with other queries when listing matches without a [composite index][compidx]. By default, it will fall back to less efficient server-side filtering in these cases, potentially resulting in more database reads than necessary. You may wish to enable composite indexes if you use the boardgame.io Lobby API’s `updatedAfter` or `updatedBefore` queries when listing matches. [See the Firestore docs for details on managing indexes.][idxmgmt]
+
 
 ## Database structure
 
-### History
-
-The original connector provided by boardgame.io used a flat database structure using IDs to distinguish between entry types:
-
-collection | ID                             | value
------------|--------------------------------|--------------
-`{dbName}` | `{gameName}:{gameID}:metadata` | game metadata
-`{dbName}` | `{gameName}:{gameID}`          | game state
-
-A server running a game called “tic-tac-toe” would generate entries with IDs such as `tic-tac-toe:abcd123` and `tic-tac-toe:abcd123:metadata` and they were all stored in the same top-level collection (named `bgio` by default).
-
-### Now
-
-boardgame.io v0.39 introduced some [breaking changes][0.39cl] in data structure — adding a `gameName` field to metadata and breaking up some of the game state — and this new connector takes the opportunity to restructure the database into logical collections of data.
-
-collection               | ID         | value
--------------------------|------------|-------------------
-`{dbPrefix}metadata`     | `{gameID}` | game metadata
-`{dbPrefix}state`        | `{gameID}` | game state
-`{dbPrefix}initialState` | `{gameID}` | initial game state
-`{dbPrefix}log`          | `{gameID}` | game action logs
-
-### Migration
-
-To migrate a database that used the connector provided with boardgame.io < 0.39 to be compatible with the new connector, you would need to do something like the following. (This assumes the default `dbPrefix` “bgio_”, but you can use a different prefix if you prefer.)
-
-1. Copy all metadata entries, stripping the `:metadata` from their IDs, to a new collection called `bgio_metadata`.
-
-2. Add a `gameName` field for each metadata entry. Given the structure of the IDs, you should be able to extract the game name from the ID and add it to metadata object.
-
-3. Copy all game state data to a new collection called `bgio_state`.
-
-4. For each game state object, copy the contents of the `_initial` field to a new document with the same ID as the state document, in a collection called `bgio_initialState`. Then delete the `_initial` field.
-
-5. For each game state object, copy its `log` field to a new document with the same ID as the state document, in a collection called `bgio_log`. Then delete the `log` field.
-
-    The created document should have the form:
-
-    ```js
-    {
-      log: [/* log entries */]
-    }
-    ```
+collection ID            | document ID | contents
+-------------------------|-------------|-------------------
+`{dbPrefix}metadata`     | `{matchID}` | match metadata
+`{dbPrefix}state`        | `{matchID}` | game state
+`{dbPrefix}initialState` | `{matchID}` | initial game state
+`{dbPrefix}log`          | `{matchID}` | game action logs
 
 
 ## Contributing
@@ -138,12 +106,11 @@ The code in this repository is provided under [the MIT License][license].
 
 
 [bgio]: https://boardgame.io/
-[old-connector]: https://github.com/nicolodavis/boardgame.io/blob/3a8e07d099dc1832830fce53e4b3907993fbddfc/docs/documentation/storage.md#firebase
-[0.39cl]: https://github.com/nicolodavis/boardgame.io/blob/master/docs/documentation/CHANGELOG.md#v0390
 [fbsetup]: https://firebase.google.com/docs/admin/setup#node.js
 [appopts]: https://firebase.google.com/docs/reference/admin/node/admin.AppOptions
 [settings]: https://googleapis.dev/nodejs/firestore/latest/Firestore.html#settings
-[dbstruct]: #database-structure
+[compidx]: https://firebase.google.com/docs/firestore/query-data/index-overview#composite_indexes
+[idxmgmt]: https://firebase.google.com/docs/firestore/query-data/indexing
 [newissue]: https://github.com/delucis/bgio-firebase/issues/new/choose
 [COC]: CODE_OF_CONDUCT.md
 [license]: LICENSE

@@ -5,6 +5,7 @@ export interface FirebaseDBOpts {
   config?: admin.AppOptions;
   dbPrefix?: string;
   ignoreUndefinedProperties?: boolean;
+  useCompositeIndexes?: boolean;
 }
 
 export const DB_PREFIX = 'bgio_';
