@@ -3,19 +3,59 @@ import { Async } from 'boardgame.io/internal';
 import { LogEntry, Server, State, StorageAPI } from 'boardgame.io';
 import { DB_PREFIX, tables, DBTable, FirebaseDBOpts } from './shared';
 
+/**
+ * Custom data type for storing match data with bgio-firebase custom fields.
+ */
+type ExtendedMatchData = Server.MatchData & { isGameover: boolean };
+
+/**
+ * Add custom fields to the default boardgame.io match data object.
+ * @param matchData boardgame.io match data object.
+ * @return The match data object with additional fields.
+ */
+const extendMatchData = (matchData: Server.MatchData): ExtendedMatchData => ({
+  ...matchData,
+  isGameover: matchData.gameover !== undefined,
+});
+
+/**
+ * Remove custom fields from extended match data.
+ * @param extendedMatchData Extended match data object.
+ * @return The match data object as expected by boardgame.io.
+ */
+const standardiseMatchData = (
+  extendedMatchData: ExtendedMatchData
+): Server.MatchData => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { isGameover, ...matchData } = extendedMatchData;
+  return matchData;
+};
+
+/**
+ * Firestore database class.
+ */
 export class Firestore extends Async {
   readonly client: typeof admin;
   readonly db: admin.firestore.Firestore;
+  readonly useCompositeIndexes: boolean;
   readonly metadata: admin.firestore.CollectionReference;
   readonly state: admin.firestore.CollectionReference;
   readonly initialState: admin.firestore.CollectionReference;
   readonly log: admin.firestore.CollectionReference;
 
+  /**
+   * @param app - The name of the Firebase app the connector should use.
+   * @param config - A firebase-admin AppOptions configuration object.
+   * @param dbPrefix - Prefix for table names (default: 'bgio_').
+   * @param ignoreUndefinedProperties - Set to false to disable (default: true).
+   * @param useCompositeIndexes - List matches using compound queries (default: false).
+   */
   constructor({
     app,
     config,
     dbPrefix = DB_PREFIX,
     ignoreUndefinedProperties = true,
+    useCompositeIndexes = false,
   }: FirebaseDBOpts = {}) {
     super();
     this.client = admin;
@@ -29,6 +69,7 @@ export class Firestore extends Async {
     if (ignoreUndefinedProperties) {
       this.db.settings({ ignoreUndefinedProperties });
     }
+    this.useCompositeIndexes = useCompositeIndexes;
     this.metadata = this.db.collection(dbPrefix + DBTable.Metadata);
     this.state = this.db.collection(dbPrefix + DBTable.State);
     this.initialState = this.db.collection(dbPrefix + DBTable.InitialState);
@@ -45,7 +86,7 @@ export class Firestore extends Async {
   ): Promise<void> {
     await this.db
       .batch()
-      .create(this.metadata.doc(gameID), opts.metadata)
+      .create(this.metadata.doc(gameID), extendMatchData(opts.metadata))
       .create(this.state.doc(gameID), opts.initialState)
       .create(this.initialState.doc(gameID), opts.initialState)
       .create(this.log.doc(gameID), { log: [] })
@@ -78,7 +119,8 @@ export class Firestore extends Async {
   }
 
   async setMetadata(gameID: string, metadata: Server.MatchData): Promise<void> {
-    await this.metadata.doc(gameID).set(metadata);
+    const extendedMatchData = extendMatchData(metadata);
+    await this.metadata.doc(gameID).set(extendedMatchData);
   }
 
   async fetch<O extends StorageAPI.FetchOpts>(
@@ -98,15 +140,22 @@ export class Firestore extends Async {
           .get(this[table].doc(gameID))
           .then((snapshot) => {
             // Read returned data
-            const data = snapshot.data() as State & {
-              log: LogEntry[];
-            } & Server.MatchData;
+            const data = snapshot.data() as
+              | undefined
+              | (State & {
+                  log: LogEntry[];
+                } & ExtendedMatchData);
             // Add data to the results map
-            if (table === DBTable.Log) {
-              // Handle log storage format to return array
-              result[table] = data ? data.log : data;
-            } else {
-              result[table] = data;
+            if (data) {
+              if (table === DBTable.Log) {
+                // Handle log storage format to return array
+                result[table] = data.log;
+              } else if (table === DBTable.Metadata) {
+                // Strip bgio-firebase fields from metadata.
+                result[table] = standardiseMatchData(data);
+              } else {
+                result[table] = data;
+              }
             }
           });
         requests.push(fetch);
@@ -127,14 +176,55 @@ export class Firestore extends Async {
       .commit();
   }
 
-  async listGames(opts?: StorageAPI.ListGamesOpts): Promise<string[]> {
-    const ref =
-      opts && opts.gameName
-        ? this.metadata.where('gameName', '==', opts.gameName)
-        : this.metadata;
+  async listGames({
+    gameName,
+    where = {},
+  }: StorageAPI.ListGamesOpts = {}): Promise<string[]> {
+    let ref: admin.firestore.Query = this.metadata;
+
+    // Filter by updatedAt time if requested.
+    let hasDateFilter = false;
+    if (where.updatedAfter !== undefined) {
+      hasDateFilter = true;
+      ref = ref.where('updatedAt', '>', where.updatedAfter);
+    }
+    if (where.updatedBefore !== undefined) {
+      hasDateFilter = true;
+      ref = ref.where('updatedAt', '<', where.updatedBefore);
+    }
+
+    // Only add equality queries if no range query is present or composite
+    // indexes are enabled.
+    const needsEqualityQueries =
+      gameName !== undefined || where.isGameover !== undefined;
+    const canUseEqualityQueries = this.useCompositeIndexes || !hasDateFilter;
+    if (needsEqualityQueries && canUseEqualityQueries) {
+      // Filter by game name.
+      if (gameName !== undefined) ref = ref.where('gameName', '==', gameName);
+      // Filter by gameover state.
+      if (where.isGameover === true) {
+        ref = ref.where('isGameover', '==', true);
+      } else if (where.isGameover === false) {
+        ref = ref.where('isGameover', '==', false);
+      }
+    }
+
     const docs = await ref.get();
     const ids: string[] = [];
-    docs.forEach((doc) => ids.push(doc.id));
+    const needsManualFiltering = needsEqualityQueries && !canUseEqualityQueries;
+    docs.forEach((doc) => {
+      if (needsManualFiltering) {
+        const data = doc.data() as ExtendedMatchData;
+        if (
+          (gameName !== undefined && data.gameName !== gameName) ||
+          (where.isGameover === false && data.isGameover !== false) ||
+          (where.isGameover === true && data.isGameover !== true)
+        ) {
+          return;
+        }
+      }
+      ids.push(doc.id);
+    });
     return ids;
   }
 }
