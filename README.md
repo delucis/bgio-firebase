@@ -75,6 +75,13 @@ internally to avoid errors from `undefined` values in data from boardgame.io.
 `settings` can only be called once, so if you want to call it with your own
 custom options, you can pass `false` here to disable the internal call.
 
+### `useCompositeIndexes`
+
+- **type:** `boolean`
+- **default:** `false`
+
+This connector tries to be as efficient as possible with minimal set-up, but due to Firestore’s query limitations, it cannot combine a date range query with other queries when listing matches without a [composite index][compidx]. By default, it will fall back to less efficient server-side filtering in these cases, potentially resulting in more database reads than necessary. You may wish to enable composite indexes if you use the boardgame.io Lobby API’s `updatedAfter` or `updatedBefore` queries when listing matches. [See the Firestore docs for details on managing indexes.][idxmgmt]
+
 
 ## Database structure
 
@@ -102,6 +109,8 @@ The code in this repository is provided under [the MIT License][license].
 [fbsetup]: https://firebase.google.com/docs/admin/setup#node.js
 [appopts]: https://firebase.google.com/docs/reference/admin/node/admin.AppOptions
 [settings]: https://googleapis.dev/nodejs/firestore/latest/Firestore.html#settings
+[compidx]: https://firebase.google.com/docs/firestore/query-data/index-overview#composite_indexes
+[idxmgmt]: https://firebase.google.com/docs/firestore/query-data/indexing
 [newissue]: https://github.com/delucis/bgio-firebase/issues/new/choose
 [COC]: CODE_OF_CONDUCT.md
 [license]: LICENSE
