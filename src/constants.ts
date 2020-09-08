@@ -1,13 +1,3 @@
-import admin from 'firebase-admin';
-
-export interface FirebaseDBOpts {
-  app?: string;
-  config?: admin.AppOptions;
-  dbPrefix?: string;
-  ignoreUndefinedProperties?: boolean;
-  useCompositeIndexes?: boolean;
-}
-
 export const DB_PREFIX = 'bgio_';
 
 export enum DBTable {
@@ -23,5 +13,3 @@ export const tables = [
   DBTable.InitialState,
   DBTable.Log,
 ] as const;
-
-export type Tables = typeof tables[number];

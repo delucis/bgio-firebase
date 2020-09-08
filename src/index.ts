@@ -6,4 +6,4 @@
  * https://opensource.org/licenses/MIT.
  */
 
-export { Firestore } from './db/firestore';
+export { Firestore } from './firestore';

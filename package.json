@@ -17,8 +17,8 @@
     "firebase",
     "firestore"
   ],
-  "main": "dist/bgio-firebase.js",
-  "types": "dist/bgio-firebase.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist/*"
   ],

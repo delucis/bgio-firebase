@@ -1,35 +1,12 @@
 import admin from 'firebase-admin';
 import { Async } from 'boardgame.io/internal';
 import { LogEntry, Server, State, StorageAPI } from 'boardgame.io';
-import { DB_PREFIX, tables, DBTable, FirebaseDBOpts } from './shared';
-
-/**
- * Custom data type for storing match data with bgio-firebase custom fields.
- */
-type ExtendedMatchData = Server.MatchData & { isGameover: boolean };
-
-/**
- * Add custom fields to the default boardgame.io match data object.
- * @param matchData boardgame.io match data object.
- * @return The match data object with additional fields.
- */
-const extendMatchData = (matchData: Server.MatchData): ExtendedMatchData => ({
-  ...matchData,
-  isGameover: matchData.gameover !== undefined,
-});
-
-/**
- * Remove custom fields from extended match data.
- * @param extendedMatchData Extended match data object.
- * @return The match data object as expected by boardgame.io.
- */
-const standardiseMatchData = (
-  extendedMatchData: ExtendedMatchData
-): Server.MatchData => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { isGameover, ...matchData } = extendedMatchData;
-  return matchData;
-};
+import { DB_PREFIX, tables, DBTable } from './constants';
+import {
+  extendMatchData,
+  standardiseMatchData,
+  ExtendedMatchData,
+} from './utils';
 
 /**
  * Firestore database class.
@@ -56,7 +33,13 @@ export class Firestore extends Async {
     dbPrefix = DB_PREFIX,
     ignoreUndefinedProperties = true,
     useCompositeIndexes = false,
-  }: FirebaseDBOpts = {}) {
+  }: {
+    app?: string;
+    config?: admin.AppOptions;
+    dbPrefix?: string;
+    ignoreUndefinedProperties?: boolean;
+    useCompositeIndexes?: boolean;
+  } = {}) {
     super();
     this.client = admin;
     const hasNoInitializedApp = this.client.apps.length === 0;

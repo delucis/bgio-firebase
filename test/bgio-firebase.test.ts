@@ -8,8 +8,8 @@
 
 import firebase from '@firebase/testing';
 import { LogEntry, Server, State } from 'boardgame.io';
-import { tables } from '../src/db/shared';
-import { Firestore } from '../src/bgio-firebase';
+import { tables } from '../src/constants';
+import { Firestore } from '../src';
 
 const projectId = 'bgio-firebase-tests';
 
