@@ -64,6 +64,15 @@ describe('Firestore', () => {
         db.client.apps.some((app) => app && app.name === 'customApp')
       ).toBe(true);
     });
+
+    test('can enable composite indexes', () => {
+      db = new Firestore({
+        config: { projectId },
+        ignoreUndefinedProperties: false,
+        useCompositeIndexes: true,
+      });
+      expect(db.useCompositeIndexes).toBe(true);
+    });
   });
 
   describe('#fetch', () => {
@@ -309,6 +318,60 @@ describe('Firestore', () => {
       expect(ids).toContain('gameID_3');
       expect(ids).not.toContain('gameID_4');
       expect(ids).not.toContain('gameID_5');
+    });
+
+    describe('with composite indexes', () => {
+      beforeEach(async () => {
+        // instantiate new database instance for each test
+        db = new Firestore({
+          config: { projectId },
+          ignoreUndefinedProperties: false,
+          useCompositeIndexes: true,
+        });
+        await db.connect();
+
+        // populate database with metadata
+        await db.setMetadata('gameID_0', {
+          gameName: 'A',
+          updatedAt: 1000,
+        } as Server.MatchData);
+        await db.setMetadata('gameID_1', {
+          gameName: 'B',
+          updatedAt: 1010,
+        } as Server.MatchData);
+        await db.setMetadata('gameID_2', {
+          gameName: 'A',
+          updatedAt: 1020,
+          gameover: true,
+        } as Server.MatchData);
+        await db.setMetadata('gameID_3', {
+          gameName: 'A',
+          updatedAt: 1030,
+          gameover: '0',
+        } as Server.MatchData);
+        await db.setMetadata('gameID_4', {
+          gameName: 'B',
+          updatedAt: 1040,
+          gameover: false,
+        } as Server.MatchData);
+        await db.setMetadata('gameID_5', {
+          gameName: 'A',
+          updatedAt: 1050,
+        } as Server.MatchData);
+      });
+
+      test('list entries with multiple filter conditions', async () => {
+        const ids = await db.listGames({
+          gameName: 'A',
+          where: { updatedAfter: 1020, isGameover: false },
+        });
+        expect(ids).not.toContain('gameID_0');
+        expect(ids).not.toContain('gameID_1');
+        expect(ids).not.toContain('gameID_2');
+        expect(ids).not.toContain('gameID_3');
+        expect(ids).not.toContain('gameID_4');
+        expect(ids).toContain('gameID_5');
+      });
     });
   });
 
