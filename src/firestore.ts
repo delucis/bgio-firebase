@@ -63,9 +63,9 @@ export class Firestore extends Async {
     // No-op, but required by boardgame.io
   }
 
-  async createGame(
+  async createMatch(
     gameID: string,
-    opts: StorageAPI.CreateGameOpts
+    opts: StorageAPI.CreateMatchOpts
   ): Promise<void> {
     await this.db
       .batch()
@@ -159,10 +159,10 @@ export class Firestore extends Async {
       .commit();
   }
 
-  async listGames({
+  async listMatches({
     gameName,
     where = {},
-  }: StorageAPI.ListGamesOpts = {}): Promise<string[]> {
+  }: StorageAPI.ListMatchesOpts = {}): Promise<string[]> {
     let ref: admin.firestore.Query = this.metadata;
 
     // Filter by updatedAt time if requested.

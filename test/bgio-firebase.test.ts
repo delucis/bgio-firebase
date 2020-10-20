@@ -27,7 +27,7 @@ describe('Firestore', () => {
 
   afterEach(async () => {
     // clean database after each test
-    const ids = await db.listGames();
+    const ids = await db.listMatches();
     await Promise.all(ids.map((id) => db.wipe(id)));
   });
 
@@ -93,7 +93,7 @@ describe('Firestore', () => {
       // Create game.
       const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
       const metadata = { gameName: 'A' } as Server.MatchData;
-      await db.createGame('gameID', { initialState, metadata });
+      await db.createMatch('gameID', { initialState, metadata });
 
       // Must return created game.
       const data = await db.fetch('gameID', {
@@ -112,7 +112,7 @@ describe('Firestore', () => {
       // Create game.
       const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
       const metadata = { gameName: 'A' } as Server.MatchData;
-      await db.createGame('gameID', { initialState, metadata });
+      await db.createMatch('gameID', { initialState, metadata });
 
       // Must return no fields.
       const data = await db.fetch('gameID', {});
@@ -126,7 +126,7 @@ describe('Firestore', () => {
       // Create game.
       const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
       const metadata = { gameName: 'A' } as Server.MatchData;
-      await db.createGame('gameID', { initialState, metadata });
+      await db.createMatch('gameID', { initialState, metadata });
 
       // Metadata should not contain `isGameover` field.
       const data = await db.fetch('gameID', { metadata: true });
@@ -150,7 +150,7 @@ describe('Firestore', () => {
       const id = 'B';
       const initialState = ({ G: 'G', _stateID: 0 } as unknown) as State;
       const metadata = { gameName: 'A' } as Server.MatchData;
-      await db.createGame(id, { initialState, metadata });
+      await db.createMatch(id, { initialState, metadata });
 
       const initialData = await db.fetch(id, { state: true });
       expect(initialData.state).toEqual(initialState);
@@ -179,7 +179,7 @@ describe('Firestore', () => {
       const id = 'D';
       const initialState = ({ G: 'G', _stateID: 0 } as unknown) as State;
       const metadata = { gameName: 'A' } as Server.MatchData;
-      await db.createGame(id, { initialState, metadata });
+      await db.createMatch(id, { initialState, metadata });
 
       // Update state, including deltalogs.
       const logEntry1 = { turn: 1 } as LogEntry;
@@ -196,7 +196,7 @@ describe('Firestore', () => {
     });
   });
 
-  describe('#listGames', () => {
+  describe('#listMatches', () => {
     beforeEach(async () => {
       await db.setMetadata('gameID_0', {
         gameName: 'A',
@@ -228,7 +228,7 @@ describe('Firestore', () => {
     });
 
     test('lists all entries', async () => {
-      const ids = await db.listGames();
+      const ids = await db.listMatches();
       expect(ids).toContain('gameID_0');
       expect(ids).toContain('gameID_1');
       expect(ids).toContain('gameID_2');
@@ -238,7 +238,7 @@ describe('Firestore', () => {
     });
 
     test('lists entries for specific gameName', async () => {
-      const ids = await db.listGames({ gameName: 'A' });
+      const ids = await db.listMatches({ gameName: 'A' });
       expect(ids).toContain('gameID_0');
       expect(ids).not.toContain('gameID_1');
       expect(ids).toContain('gameID_2');
@@ -248,7 +248,7 @@ describe('Firestore', () => {
     });
 
     test('lists entries where game is over', async () => {
-      const ids = await db.listGames({ where: { isGameover: true } });
+      const ids = await db.listMatches({ where: { isGameover: true } });
       expect(ids).not.toContain('gameID_0');
       expect(ids).not.toContain('gameID_1');
       expect(ids).toContain('gameID_2');
@@ -258,7 +258,7 @@ describe('Firestore', () => {
     });
 
     test('lists entries where game is not over', async () => {
-      const ids = await db.listGames({ where: { isGameover: false } });
+      const ids = await db.listMatches({ where: { isGameover: false } });
       expect(ids).toContain('gameID_0');
       expect(ids).toContain('gameID_1');
       expect(ids).not.toContain('gameID_2');
@@ -268,7 +268,7 @@ describe('Firestore', () => {
     });
 
     test('lists entries where game is over for specific gameName', async () => {
-      const ids = await db.listGames({
+      const ids = await db.listMatches({
         gameName: 'B',
         where: { isGameover: true },
       });
@@ -276,7 +276,7 @@ describe('Firestore', () => {
     });
 
     test('lists entries updated before a specific time', async () => {
-      const ids = await db.listGames({ where: { updatedBefore: 1025 } });
+      const ids = await db.listMatches({ where: { updatedBefore: 1025 } });
       expect(ids).toContain('gameID_0');
       expect(ids).toContain('gameID_1');
       expect(ids).toContain('gameID_2');
@@ -286,7 +286,7 @@ describe('Firestore', () => {
     });
 
     test('lists entries updated after a specific time', async () => {
-      const ids = await db.listGames({ where: { updatedAfter: 1025 } });
+      const ids = await db.listMatches({ where: { updatedAfter: 1025 } });
       expect(ids).not.toContain('gameID_0');
       expect(ids).not.toContain('gameID_1');
       expect(ids).not.toContain('gameID_2');
@@ -296,7 +296,7 @@ describe('Firestore', () => {
     });
 
     test('lists entries updated within a time range', async () => {
-      const ids = await db.listGames({
+      const ids = await db.listMatches({
         where: { updatedAfter: 1025, updatedBefore: 1035 },
       });
       expect(ids).not.toContain('gameID_0');
@@ -308,7 +308,7 @@ describe('Firestore', () => {
     });
 
     test('lists entries with multiple filter conditions', async () => {
-      let ids = await db.listGames({
+      let ids = await db.listMatches({
         gameName: 'A',
         where: { updatedAfter: 1020, isGameover: false },
       });
@@ -319,7 +319,7 @@ describe('Firestore', () => {
       expect(ids).not.toContain('gameID_4');
       expect(ids).toContain('gameID_5');
 
-      ids = await db.listGames({
+      ids = await db.listMatches({
         gameName: 'A',
         where: { updatedAfter: 1020, isGameover: true },
       });
@@ -372,7 +372,7 @@ describe('Firestore', () => {
       });
 
       test('list entries with multiple filter conditions', async () => {
-        const ids = await db.listGames({
+        const ids = await db.listMatches({
           gameName: 'A',
           where: { updatedAfter: 1020, isGameover: false },
         });
@@ -391,11 +391,11 @@ describe('Firestore', () => {
       const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
       const metadata = { gameName: 'A' } as Server.MatchData;
       // Insert 2 entries
-      await db.createGame('gameID_6', { initialState, metadata });
-      await db.createGame('gameID_7', { initialState, metadata });
+      await db.createMatch('gameID_6', { initialState, metadata });
+      await db.createMatch('gameID_7', { initialState, metadata });
       // Remove 1
       await db.wipe('gameID_7');
-      const games = await db.listGames();
+      const games = await db.listMatches();
       expect(games).toContain('gameID_6');
       expect(games).not.toContain('gameID_7');
       const data = await db.fetch('gameID_7', {

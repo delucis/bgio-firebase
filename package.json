@@ -54,7 +54,7 @@
     "@types/jest": "^26.0.0",
     "@typescript-eslint/eslint-plugin": "^4.1.0",
     "@typescript-eslint/parser": "^4.1.0",
-    "boardgame.io": ">=0.40.0",
+    "boardgame.io": ">=0.41.1",
     "commitizen": "^4.0.4",
     "coveralls": "^3.0.11",
     "cz-conventional-changelog": "^3.1.0",
@@ -75,6 +75,6 @@
     "firebase-admin": "^9.0.0"
   },
   "peerDependencies": {
-    "boardgame.io": ">=0.40 <0.42"
+    "boardgame.io": ">=0.41.1"
   }
 }
