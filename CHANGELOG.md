@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.2](https://github.com/delucis/bgio-firebase/compare/v0.2.1...v0.2.2) (2020-10-20)
+
+
+### Bug Fixes
+
+* **package:** Only support current boardgame.io ([4b6230a](https://github.com/delucis/bgio-firebase/commit/4b6230a1cab87cdfc4d5d4086e27c2e0cd7a6ff0))
+
 ### [0.2.1](https://github.com/delucis/bgio-firebase/compare/v0.2.0...v0.2.1) (2020-09-18)
 
 ## [0.2.0](https://github.com/delucis/bgio-firebase/compare/v0.1.2...v0.2.0) (2020-09-08)
