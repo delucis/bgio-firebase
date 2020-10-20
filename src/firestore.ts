@@ -64,36 +64,36 @@ export class Firestore extends Async {
   }
 
   async createMatch(
-    gameID: string,
+    matchID: string,
     opts: StorageAPI.CreateMatchOpts
   ): Promise<void> {
     await this.db
       .batch()
-      .create(this.metadata.doc(gameID), extendMatchData(opts.metadata))
-      .create(this.state.doc(gameID), opts.initialState)
-      .create(this.initialState.doc(gameID), opts.initialState)
-      .create(this.log.doc(gameID), { log: [] })
+      .create(this.metadata.doc(matchID), extendMatchData(opts.metadata))
+      .create(this.state.doc(matchID), opts.initialState)
+      .create(this.initialState.doc(matchID), opts.initialState)
+      .create(this.log.doc(matchID), { log: [] })
       .commit();
   }
 
   async setState(
-    gameID: string,
+    matchID: string,
     state: State,
     deltalog?: LogEntry[]
   ): Promise<void> {
     return this.db.runTransaction(async (transaction) => {
-      const stateRef = this.state.doc(gameID);
+      const stateRef = this.state.doc(matchID);
       // read previous state from the database
       const prevSnapshot = await transaction.get(stateRef);
       const prevState = prevSnapshot.data() as State | undefined;
 
       // don’t set if database state is newer
       if (!prevState || prevState._stateID < state._stateID) {
-        transaction.set(this.state.doc(gameID), state);
+        transaction.set(this.state.doc(matchID), state);
 
         // concatenate log if deltalog is provided
         if (deltalog && deltalog.length > 0) {
-          transaction.update(this.log.doc(gameID), {
+          transaction.update(this.log.doc(matchID), {
             log: this.client.firestore.FieldValue.arrayUnion(...deltalog),
           });
         }
@@ -101,13 +101,16 @@ export class Firestore extends Async {
     });
   }
 
-  async setMetadata(gameID: string, metadata: Server.MatchData): Promise<void> {
+  async setMetadata(
+    matchID: string,
+    metadata: Server.MatchData
+  ): Promise<void> {
     const extendedMatchData = extendMatchData(metadata);
-    await this.metadata.doc(gameID).set(extendedMatchData);
+    await this.metadata.doc(matchID).set(extendedMatchData);
   }
 
   async fetch<O extends StorageAPI.FetchOpts>(
-    gameID: string,
+    matchID: string,
     opts: O
   ): Promise<StorageAPI.FetchResult<O>> {
     return this.db.runTransaction(async (transaction) => {
@@ -120,7 +123,7 @@ export class Firestore extends Async {
         if (!opts[table]) continue;
         // Launch get request for this document type
         const fetch = transaction
-          .get(this[table].doc(gameID))
+          .get(this[table].doc(matchID))
           .then((snapshot) => {
             // Read returned data
             const data = snapshot.data() as
@@ -149,13 +152,13 @@ export class Firestore extends Async {
     });
   }
 
-  async wipe(gameID: string): Promise<void> {
+  async wipe(matchID: string): Promise<void> {
     await this.db
       .batch()
-      .delete(this.metadata.doc(gameID))
-      .delete(this.state.doc(gameID))
-      .delete(this.initialState.doc(gameID))
-      .delete(this.log.doc(gameID))
+      .delete(this.metadata.doc(matchID))
+      .delete(this.state.doc(matchID))
+      .delete(this.initialState.doc(matchID))
+      .delete(this.log.doc(matchID))
       .commit();
   }
 
