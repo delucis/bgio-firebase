@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://github.com/delucis/bgio-firebase/compare/v0.2.2...v0.3.0) (2020-10-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* Versions of boardgame.io <0.41.1 are no longer supported and other uses that
+directly relied on calling `listGames` or `createGame` will need to be updated to use the new method
+names.
+
+### Features
+
+* rename deprecated storage API methods ([42be298](https://github.com/delucis/bgio-firebase/commit/42be298988f3afefa4654bde83730c9b8e8bd9c6))
+
 ### [0.2.2](https://github.com/delucis/bgio-firebase/compare/v0.2.1...v0.2.2) (2020-10-20)
 
 
