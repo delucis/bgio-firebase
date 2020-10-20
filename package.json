@@ -75,6 +75,6 @@
     "firebase-admin": "^9.0.0"
   },
   "peerDependencies": {
-    "boardgame.io": ">=0.40.0"
+    "boardgame.io": ">=0.40 <0.42"
   }
 }
