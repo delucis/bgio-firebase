@@ -1,0 +1,53 @@
+name: Test
+on:
+  push:
+    branches: [ latest ]
+  pull_request:
+    branches: [ latest ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [10.x, 12.x, 14.x, 15.x]
+        # Test with oldest and newest supported boardgame.io versions
+        bgio: [0.41.1, latest]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Cache Node modules & Firebase Emulator
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/firebase
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ matrix.node }}-
+            ${{ runner.os }}-
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Install boardgame.io@${{ matrix.bgio }}
+        run: npm i -D boardgame.io@${{ matrix.bgio }}
+      - run: npm test
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          flag-name: test-node@${{ matrix.node }}-bgio@${{ matrix.bgio }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel: true
+          path-to-lcov: ./coverage/lcov.info
+
+  onEnd:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel-finished: true
+        path-to-lcov: ./coverage/lcov.info
