@@ -1,7 +1,7 @@
 # bgio-firebase
 
 [![NPM Version](https://img.shields.io/npm/v/bgio-firebase?logo=firebase)](https://www.npmjs.com/package/bgio-firebase)
-[![Build Status](https://travis-ci.com/delucis/bgio-firebase.svg?branch=latest)](https://travis-ci.com/delucis/bgio-firebase)
+[![Test CI Status](https://github.com/delucis/bgio-firebase/workflows/Test/badge.svg)](https://github.com/delucis/bgio-firebase/actions?query=workflow%3ATest)
 [![Coverage Status](https://coveralls.io/repos/github/delucis/bgio-firebase/badge.svg?branch=latest)](https://coveralls.io/github/delucis/bgio-firebase?branch=latest)
 
 >  🔌 A Firestore database connector for [boardgame.io][bgio]
