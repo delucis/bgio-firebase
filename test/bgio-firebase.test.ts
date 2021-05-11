@@ -91,7 +91,7 @@ describe('Firestore', () => {
 
     test('returns all fields', async () => {
       // Create game.
-      const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
+      const initialState = { G: 'G', ctx: 'ctx' } as unknown as State;
       const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createMatch('gameID', { initialState, metadata });
 
@@ -110,7 +110,7 @@ describe('Firestore', () => {
 
     test('returns no fields', async () => {
       // Create game.
-      const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
+      const initialState = { G: 'G', ctx: 'ctx' } as unknown as State;
       const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createMatch('gameID', { initialState, metadata });
 
@@ -124,7 +124,7 @@ describe('Firestore', () => {
 
     test('returns metadata without `isGameover` field', async () => {
       // Create game.
-      const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
+      const initialState = { G: 'G', ctx: 'ctx' } as unknown as State;
       const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createMatch('gameID', { initialState, metadata });
 
@@ -137,7 +137,7 @@ describe('Firestore', () => {
   describe('#setState', () => {
     test('creates a state document', async () => {
       const id = 'A';
-      const state = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
+      const state = { G: 'G', ctx: 'ctx' } as unknown as State;
       await db.setState(id, state);
 
       const data = await db.fetch(id, { state: true, metadata: true });
@@ -148,14 +148,14 @@ describe('Firestore', () => {
     test('updates a state document', async () => {
       // Create game.
       const id = 'B';
-      const initialState = ({ G: 'G', _stateID: 0 } as unknown) as State;
+      const initialState = { G: 'G', _stateID: 0 } as unknown as State;
       const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createMatch(id, { initialState, metadata });
 
       const initialData = await db.fetch(id, { state: true });
       expect(initialData.state).toEqual(initialState);
 
-      const newState = ({ G: 'F', _stateID: 1 } as unknown) as State;
+      const newState = { G: 'F', _stateID: 1 } as unknown as State;
       await db.setState(id, newState);
       const data = await db.fetch(id, { state: true, initialState: true });
       expect(data.state).toEqual(newState);
@@ -164,10 +164,10 @@ describe('Firestore', () => {
 
     test('won’t overwrite a newer state document', async () => {
       const id = 'C';
-      const state = ({ G: 'G', _stateID: 1 } as unknown) as State;
+      const state = { G: 'G', _stateID: 1 } as unknown as State;
       await db.setState(id, state);
 
-      const staleState = ({ G: 'A', _stateID: 0 } as unknown) as State;
+      const staleState = { G: 'A', _stateID: 0 } as unknown as State;
       await db.setState(id, staleState);
 
       const data = await db.fetch(id, { state: true });
@@ -177,18 +177,18 @@ describe('Firestore', () => {
     test('concatenates game log', async () => {
       // Create game.
       const id = 'D';
-      const initialState = ({ G: 'G', _stateID: 0 } as unknown) as State;
+      const initialState = { G: 'G', _stateID: 0 } as unknown as State;
       const metadata = { gameName: 'A' } as Server.MatchData;
       await db.createMatch(id, { initialState, metadata });
 
       // Update state, including deltalogs.
       const logEntry1 = { turn: 1 } as LogEntry;
-      const state1 = ({ G: 'F', _stateID: 1 } as unknown) as State;
+      const state1 = { G: 'F', _stateID: 1 } as unknown as State;
       await db.setState(id, state1, [logEntry1]);
 
       const logEntry2 = { turn: 2 } as LogEntry;
       const logEntry3 = { turn: 3 } as LogEntry;
-      const state2 = ({ G: 'E', _stateID: 2 } as unknown) as State;
+      const state2 = { G: 'E', _stateID: 2 } as unknown as State;
       await db.setState(id, state2, [logEntry2, logEntry3]);
 
       const data = await db.fetch(id, { log: true });
@@ -388,7 +388,7 @@ describe('Firestore', () => {
 
   describe('#wipe', () => {
     test('removes entry', async () => {
-      const initialState = ({ G: 'G', ctx: 'ctx' } as unknown) as State;
+      const initialState = { G: 'G', ctx: 'ctx' } as unknown as State;
       const metadata = { gameName: 'A' } as Server.MatchData;
       // Insert 2 entries
       await db.createMatch('gameID_6', { initialState, metadata });
