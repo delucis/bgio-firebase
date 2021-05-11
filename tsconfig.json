@@ -5,6 +5,7 @@
     "esModuleInterop": true,
     "module": "CommonJS",
     "outDir": "dist",
+    "skipLibCheck": true,
     "strict": true,
     "target": "es2018"
   }
