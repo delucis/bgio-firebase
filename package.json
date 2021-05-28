@@ -17,6 +17,13 @@
     "firebase",
     "firestore"
   ],
+  "funding": [
+    "https://github.com/boardgameio/boardgame.io?sponsor=1",
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/boardgameio"
+    }
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
