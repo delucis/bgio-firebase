@@ -6,7 +6,7 @@
  * https://opensource.org/licenses/MIT.
  */
 
-import firebase from '@firebase/testing';
+import { apps } from '@firebase/testing';
 import { LogEntry, Server, State } from 'boardgame.io';
 import { tables } from '../src/constants';
 import { Firestore } from '../src';
@@ -33,7 +33,7 @@ describe('Firestore', () => {
 
   afterAll(async () => {
     // close connections to emulator after testing
-    await Promise.all(firebase.apps().map((app) => app.delete()));
+    await Promise.all(apps().map((app) => app.delete()));
   });
 
   describe('construction', () => {
