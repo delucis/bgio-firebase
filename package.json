@@ -30,7 +30,7 @@
     "dist/*"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
     "pretest": "eslint \"{src,test}/**/*.{ts,js}\"",
