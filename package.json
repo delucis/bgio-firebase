@@ -1,6 +1,6 @@
 {
   "name": "bgio-firebase",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "description": "🔌 A Firebase database connector for boardgame.io",
   "license": "MIT",
   "author": "Chris Swithinbank <swithinbank@gmail.com> (http://chrisswithinbank.net/)",
