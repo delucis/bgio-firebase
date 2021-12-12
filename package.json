@@ -43,17 +43,12 @@
     "prebuild": "npm run prettier:check && npm run clean",
     "build": "tsc -b src",
     "prerelease": "npm run test && npm run build",
-    "release": "standard-version -s"
+    "release": "standard-version -s",
+    "prepare": "husky install"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
-    }
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run prettier:write",
-      "pre-push": "npm run prettier:check && npm run test"
     }
   },
   "devDependencies": {
@@ -70,7 +65,7 @@
     "eslint-plugin-jest": "^25.0.1",
     "eslint-plugin-prettier": "^4.0.0",
     "firebase-tools": "^9.0.0",
-    "husky": "^4.2.3",
+    "husky": "^7.0.0",
     "jest": "^27.1.0",
     "prettier": "^2.0.4",
     "rimraf": "^3.0.2",
