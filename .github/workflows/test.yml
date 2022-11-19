@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [12.x, 14.x, 16.x]
+        node: [14.x, 16.x, 18.x]
         # Test with oldest and newest supported boardgame.io versions
         bgio: [0.41.1, latest]
     steps:
