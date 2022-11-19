@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/delucis/bgio-firebase/compare/v0.4.1...v0.5.0) (2022-11-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* This release now requires a minimum Node version of 14
+
+### build
+
+* drop support for Node 12 ([d498194](https://github.com/delucis/bgio-firebase/commit/d498194b157d104d29d06419a2993b1eb324c7ec))
+
 ### [0.4.1](https://github.com/delucis/bgio-firebase/compare/v0.4.0...v0.4.1) (2022-03-22)
 
 ## [0.4.0](https://github.com/delucis/bgio-firebase/compare/v0.3.5...v0.4.0) (2021-11-19)
